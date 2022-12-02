@@ -1,0 +1,71 @@
+package com.example.testdemo.service;
+
+import com.example.testdemo.entity.User;
+import com.example.testdemo.exception.ResourceNotFoundException;
+import com.example.testdemo.form.CreateForm;
+import com.example.testdemo.form.UpdateForm;
+import com.example.testdemo.mapper.UserMapper;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class UserServiceImpl implements UserService {
+    private final UserMapper userMapper;
+
+    public UserServiceImpl(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
+
+    @Override
+    public List<User> findAll() {
+        return userMapper.findAll();
+    }
+
+    @Override
+    public User findById(int id) {
+        Optional<User> user = userMapper.findById(id);
+        return userMapper.findById(id).orElseThrow(() -> new ResourceNotFoundException("resource not found"));
+    }
+
+    @Override
+    public List<User> findByName(String name) {
+        return userMapper.findByName(name);
+    }
+
+    @Override
+    public List<User> findByResidence(String residence) {
+        return userMapper.findByResidence(residence);
+    }
+
+    @Override
+    public List<User> findByNameAndResidence(String name, String residence) {
+
+        if ((name != null) && (residence != null)) {
+            return userMapper.findByNameAndResidence(name, residence);
+        } else if ((name != null) && (residence == null)) {
+            return userMapper.findByName(name);
+        } else if ((name == null) && (residence != null)) {
+            return userMapper.findByResidence(residence);
+        }
+        return userMapper.findAll();
+    }
+
+    @Override
+    public void createUser(CreateForm form) {
+        userMapper.create(form);
+    }
+
+    @Override
+    public void updateUser(int id, UpdateForm form) {
+        userMapper.findById(id).orElseThrow(() -> new ResourceNotFoundException("resource not found"));
+        userMapper.update(form);
+    }
+
+    @Override
+    public void deleteById(int id) {
+        userMapper.findById(id).orElseThrow(() -> new ResourceNotFoundException("resource not found"));
+        userMapper.deleteById(id);
+    }
+}
